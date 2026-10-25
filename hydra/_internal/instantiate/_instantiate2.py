@@ -523,7 +523,7 @@ def instantiate(
         None
         if execution_whitelist is UNSAFE_DISABLE_EXECUTION_CHECKS
         else _validated_execution_policy(
-            "5e70100572e2183db32478e51b32d1edd9b9e1af4a47747d10c7b80b8fadf76e"
+            "208a0d1fdfebeb40610a31c5aff0373b690af5cbcc1bb1cf3c83cfd8bf3ccf41"
         )
     )
     token = _ISOLATE_CONFIG_ARGUMENTS.set(

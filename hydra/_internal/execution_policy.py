@@ -356,6 +356,9 @@ UNCONTROLLED_EXECUTION_TARGET_PREFIXES = (
     # unpickles a counts file. The inert Trace constructor is excepted below.
     "shelve.",
     "trace.",
+    # PyYAML exposes Python-object loading and constructor dispatch. Keep only
+    # exact safe load/dump functions available.
+    "yaml.",
     # pydoc imports/executes modules and files (importfile runs a file,
     # safeimport imports by name). Inert documentation formatters are excepted
     # below.
@@ -367,7 +370,7 @@ UNCONTROLLED_EXECUTION_TARGET_PREFIXES = (
     "bdb.",
 )
 
-# Exact legitimate constructors within otherwise denied module families. Exact
+# Exact legitimate targets within otherwise denied module families. Exact
 # entries in UNCONTROLLED_EXECUTION_TARGETS still take precedence over exceptions.
 # An exception permits only the named target, not its methods or descendants.
 UNCONTROLLED_EXECUTION_TARGET_PREFIX_EXCEPTIONS = frozenset(
@@ -378,6 +381,10 @@ UNCONTROLLED_EXECUTION_TARGET_PREFIX_EXCEPTIONS = frozenset(
         "pydoc.HTMLDoc",
         "pydoc.TextDoc",
         "trace.Trace",
+        "yaml.safe_load",
+        "yaml.safe_load_all",
+        "yaml.safe_dump",
+        "yaml.safe_dump_all",
     }
 )
 
