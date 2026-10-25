@@ -39,7 +39,7 @@
 #### Release candidate
 
 **Hydra 1.4** is in the release candidate phase.
-- [1.4.0rc2 release notes](https://github.com/hydra-ecosystem/hydra/releases/tag/v1.4.0rc2)
+- [1.4.0rc3 release notes](https://github.com/hydra-ecosystem/hydra/releases/tag/v1.4.0rc3)
 - [Documentation](https://hydra.cc/docs/intro/)
 - Install the latest published prerelease: `pip install --pre --upgrade hydra-core`
 - Supported Python versions: 3.10 through 3.14.
