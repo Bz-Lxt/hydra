@@ -1,0 +1,4 @@
+# @package custom
+relocated: true
+defaults:
+  - group1: inner

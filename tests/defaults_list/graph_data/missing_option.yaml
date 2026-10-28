@@ -1,0 +1,2 @@
+defaults:
+  - group1: does_not_exist

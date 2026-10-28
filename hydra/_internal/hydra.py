@@ -832,6 +832,9 @@ class Hydra:
         self._print_config_info(
             config_name, overrides, run_mode, skip_missing_defaults, parsed_overrides
         )
+        self._print_defaults_graph(
+            config_name, overrides, run_mode, skip_missing_defaults, parsed_overrides
+        )
 
     def _get_override_aliases(self, config_name: str | None) -> OverrideAliases:
         if isinstance(self.config_loader, ConfigLoaderImpl):
@@ -943,6 +946,33 @@ class Hydra:
         self._log_header("Defaults Tree", filler="*")
         self._print_defaults_tree_impl(defaults.defaults_tree)
 
+    def _print_defaults_graph(
+        self,
+        config_name: str | None,
+        overrides: list[str],
+        run_mode: RunMode = RunMode.RUN,
+        skip_missing_defaults: bool = False,
+        parsed_overrides: list["Override"] | None = None,
+    ) -> None:
+        assert log is not None
+        log.info("")
+        self._log_header("Defaults Graph", filler="*")
+        if not isinstance(self.config_loader, ConfigLoaderImpl):
+            log.info(
+                "The defaults graph is only supported by the built-in ConfigLoaderImpl"
+            )
+            return
+
+        from hydra._internal.defaults_graph import format_defaults_graph
+
+        graph = self.config_loader.compute_defaults_graph(
+            config_name=config_name,
+            overrides=overrides,
+            parsed_overrides=parsed_overrides,
+        )
+        for line in format_defaults_graph(graph).splitlines():
+            log.info(line)
+
     def show_info(
         self,
         info: str,
@@ -957,6 +987,7 @@ class Hydra:
             "aliases": self._print_aliases,
             "defaults": self._print_defaults_list,
             "defaults-tree": self._print_defaults_tree,
+            "defaults-graph": self._print_defaults_graph,
             "config": self._print_config_info,
             "plugins": self._print_plugins_info,
             "searchpath": self._print_search_path,

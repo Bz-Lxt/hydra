@@ -848,6 +848,7 @@ def get_args_parser() -> argparse.ArgumentParser:
         "aliases",
         "config",
         "defaults",
+        "defaults-graph",
         "defaults-tree",
         "plugins",
         "searchpath",

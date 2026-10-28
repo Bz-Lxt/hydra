@@ -53,6 +53,7 @@ The `--info` flag can provide information about various aspects of Hydra and you
    Config Search Path, Defaults Tree, Defaults List and the final config.
  - `--info defaults`: Prints the Final Defaults List
  - `--info defaults-tree`: Prints the Defaults Tree
+ - `--info defaults-graph`: Prints the Defaults Graph (every reachable group option, with cycles, missing configs and cross-source conflicts)
  - `--info plugins`: Prints information about installed plugins
 
 For example, if `bs` aliases `trainer.batch_size`,

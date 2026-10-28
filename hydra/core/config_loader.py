@@ -73,3 +73,18 @@ class ConfigLoader(ABC):
         overrides: list[str],
         run_mode: RunMode,
     ) -> Any: ...
+
+    def compute_defaults_graph(
+        self,
+        config_name: str | None,
+        overrides: list[str],
+        parsed_overrides: list[Any] | None = None,
+    ) -> Any:
+        """Build the static Defaults Graph for the primary config.
+
+        Only supported by the built-in ``ConfigLoaderImpl``; custom config
+        loaders may leave the default implementation, which raises.
+        """
+        raise NotImplementedError(
+            "The defaults graph is only supported by the built-in ConfigLoaderImpl"
+        )

@@ -26,6 +26,7 @@ from hydra._internal.config_repository import (
     ConfigRepository,
     IConfigRepository,
 )
+from hydra._internal.defaults_graph import DefaultsGraph, build_defaults_graph
 from hydra._internal.defaults_list import DefaultsList, create_defaults_list
 from hydra._internal.override_aliases import OverrideAliases
 from hydra.conf import ConfigSourceInfo
@@ -811,3 +812,24 @@ class ConfigLoaderImpl(ConfigLoader):
             skip_missing=run_mode == RunMode.MULTIRUN,
         )
         return defaults_list
+
+    def compute_defaults_graph(
+        self,
+        config_name: str | None,
+        overrides: list[str],
+        parsed_overrides: list[Override] | None = None,
+    ) -> DefaultsGraph:
+        self.ensure_main_config_source_available()
+        parsed_overrides, caching_repo = self._parse_overrides_and_create_caching_repo(
+            config_name, overrides, parsed_overrides
+        )
+        if config_name is not None and not caching_repo.config_exists(config_name):
+            self._missing_config_error(
+                config_name,
+                f"Cannot find primary config '{config_name}'. Check that it's in"
+                " your config search path.",
+                with_search_path=True,
+            )
+        return build_defaults_graph(
+            repo=caching_repo, config_name=config_name, prepend_hydra=True
+        )

@@ -248,6 +248,8 @@ You can inspect these artifacts via command line flags:
 
 - `--info defaults-tree` shows the Defaults Tree.
 - `--info defaults` Shows the Final Defaults List.
+- `--info defaults-graph` shows the Defaults Graph: every option of every config
+  group reachable from the primary config, not only the selected combination.
 - `--cfg job|hydra|all` Shows the Output Config.
 
 Example outputs:
@@ -303,6 +305,55 @@ Example outputs:
       name: mysql
     name: apache
   debug: false
+  ```
+</details>
+
+## The Defaults Graph
+
+The Defaults Tree only follows the single combination of options selected for a
+composition. The **Defaults Graph** statically expands *every* option of every
+config group reachable from the primary config, which is useful for auditing
+large config repositories:
+
+- `selected` marks the option chosen by the defaults list; every other option
+  of the same group is shown as well.
+- Each edge records the effective package after `@package` / `# @package`
+  relocation, so the graph stays stable when configs are relocated.
+- The summary reports defaults cycles, missing configs, and config paths
+  shadowed across multiple config sources. Unresolved choices (`???`) and
+  interpolations are listed separately, with the options that remain possible.
+
+The graph is a static view: command line overrides are not applied, so all
+options stay visible. View it with `--info defaults-graph` (it is also part of
+`--info all`).
+
+<details>
+  <summary>python my_app.py <b>--info defaults-graph</b></summary>
+
+  ```text
+  Defaults Graph
+  ==============
+
+  config (primary)
+    db/mysql [db=mysql, package=db, selected]
+    db/postgresql [db=postgresql, package=db]
+
+  db/mysql
+
+  db/postgresql
+
+  hydra/config (hydra)
+    hydra/output/default [hydra/output=default, package=hydra, selected]
+    hydra/launcher/basic [hydra/launcher=basic, package=launcher, selected]
+    ...
+
+  Defaults Graph Summary
+  ========================
+
+  Unresolved choices (1); select one at compose time:
+    'hydra/callbacks' referenced from 'hydra/config'; available: (none available)
+
+  No cycles, missing configs, or cross-source conflicts detected.
   ```
 </details>
 

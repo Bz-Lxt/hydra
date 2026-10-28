@@ -1,0 +1,6 @@
+defaults:
+  - group1: file1
+  - group2: ???
+  - group1@relocated: file2
+  - pkg/relocated
+  - pkg/global

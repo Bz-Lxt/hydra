@@ -1,0 +1,2 @@
+defaults:
+  - group1: ${oc.env:HYDRA_TEST_CHOICE,file1}

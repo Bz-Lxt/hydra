@@ -835,6 +835,12 @@ def test_multirun_rejects_swept_config_hydra_controller_config_override(
             pass
 
 
+_INFO_LINE = (
+    "Print Hydra information "
+    "[all|aliases|config|defaults|defaults-graph|defaults-tree|plugins|searchpath]"
+)
+
+
 @mark.parametrize(
     "script, flags, overrides,expected",
     [
@@ -936,7 +942,7 @@ for details.
                 --config-name,-cn : Overrides the config_name specified in hydra.main()
                 --config-dir,-cd : Adds an additional config dir to the config search path
                 --experimental-rerun : Rerun a job from its output directory
-                --info,-i : Print Hydra information [all|aliases|config|defaults|defaults-tree|plugins|searchpath]
+                --info,-i : {info_line}
                 Overrides : Any key=value arguments to override config values (use dots for.nested=overrides)
                 """),
             id="overriding_help_template:$FLAGS_HELP",
@@ -992,7 +998,7 @@ for details.
                 --config-name,-cn : Overrides the config_name specified in hydra.main()
                 --config-dir,-cd : Adds an additional config dir to the config search path
                 --experimental-rerun : Rerun a job from its output directory
-                --info,-i : Print Hydra information [all|aliases|config|defaults|defaults-tree|plugins|searchpath]
+                --info,-i : {info_line}
                 Overrides : Any key=value arguments to override config values (use dots for.nested=overrides)
                 """),
             id="overriding_hydra_help_template:$FLAGS_HELP",
@@ -1006,7 +1012,7 @@ def test_help(
     cmd.extend(overrides)
     cmd.extend(flags)
     result, _err = run_python_script(cmd)
-    assert_text_same(result, expected.format(script=script))
+    assert_text_same(result, expected.format(script=script, info_line=_INFO_LINE))
 
 
 def test_help_with_missing_default() -> None:
@@ -1081,6 +1087,16 @@ def test_get_mode_preserves_custom_config_loader(
     )
 
 
+def test_defaults_graph_info_unsupported_with_custom_config_loader(
+    hydra_restore_singletons: Any,
+) -> None:
+    loader = Mock(spec=ConfigLoader)
+    hydra = Hydra(task_name="test", config_loader=cast(ConfigLoader, loader))
+    # Must not raise on a custom config loader that does not support graphs.
+    hydra.show_info(info="defaults-graph", config_name=None, overrides=[])
+    loader.compute_defaults_graph.assert_not_called()
+
+
 def test_shell_completion_help(tmpdir: Path) -> None:
     """Test that --shell-completion --help works (regression test for Python 3.14+ argparse)."""
     # This test ensures that the LazyCompletionHelp workaround in utils.py works correctly
@@ -1125,6 +1141,32 @@ def test_searchpath_config(tmpdir: Path, overrides: list[str], expected: str) ->
     cmd.extend([f'hydra.run.dir="{str(tmpdir)}"', "hydra.job.chdir=True"])
     result, _err = run_python_script(cmd)
     assert re.match(expected, result, re.DOTALL)
+
+
+@mark.parametrize(
+    "info",
+    [
+        param("defaults-graph", id="defaults-graph"),
+        param("all", id="all"),
+    ],
+)
+def test_defaults_graph_info(tmpdir: Path, info: str) -> None:
+    cmd = [
+        "examples/tutorials/basic/your_first_hydra_app/5_defaults/my_app.py",
+        f'hydra.run.dir="{str(tmpdir)}"',
+        "hydra.job.chdir=True",
+        "--info",
+        info,
+    ]
+    result, err = run_python_script(cmd)
+    assert "Defaults Graph" in result
+    # Every option of the db group is visible, not just the selected mysql.
+    assert "db/mysql [db=mysql, package=db, selected]" in result
+    assert "db/postgresql [db=postgresql, package=db]" in result
+    # The hydra root is traversed as well.
+    assert "hydra/config (hydra)" in result
+    assert "Defaults Graph Summary" in result
+    assert err == ""
 
 
 @mark.parametrize(
